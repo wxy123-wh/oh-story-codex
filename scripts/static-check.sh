@@ -34,12 +34,12 @@ extract_referenced_paths() {
   grep -oE '(references|scripts|assets)/[^ `")\]]+' "$file" 2>/dev/null || true
 }
 
-# 从 SKILL.md 提取所有 subagent_type 引用
+# 从 SKILL.md 提取所有 agent_type 引用
 extract_agent_refs() {
   local file="$1"
-  grep -oE 'subagent_type:[[:space:]]*"[^"]+"' "$file" 2>/dev/null | sed 's/subagent_type:[[:space:]]*"//' | sed 's/"$//' || true
-  grep -oE 'subagent_type="[^"]+"' "$file" 2>/dev/null | sed 's/subagent_type="//' | sed 's/"//' || true
-  grep -oE '\(subagent_type:[[:space:]]*[a-z][a-z0-9_-]+\)' "$file" 2>/dev/null | sed 's/(subagent_type:[[:space:]]*//' | sed 's/)$//' || true
+  grep -oE 'agent_type:[[:space:]]*"[^"]+"' "$file" 2>/dev/null | sed 's/agent_type:[[:space:]]*"//' | sed 's/"$//' || true
+  grep -oE 'agent_type="[^"]+"' "$file" 2>/dev/null | sed 's/agent_type="//' | sed 's/"//' || true
+  grep -oE '\(agent_type:[[:space:]]*[a-z][a-z0-9_-]+\)' "$file" 2>/dev/null | sed 's/(agent_type:[[:space:]]*//' | sed 's/)$//' || true
 }
 
 # ---------- checks ----------
@@ -103,7 +103,7 @@ check_skill() {
       # Check if basename is mentioned anywhere in SKILL.md
       if ! grep -qF "$ref_basename" "$skill_file" 2>/dev/null; then
         # Fallback: check if a parent directory is referenced in SKILL.md
-        # (handles skills that reference directories like "references/templates/hooks/")
+        # (handles skills that reference directories like "references/codex/hooks/")
         local parent_covered=false
         local check_dir="$(dirname "$ref_file")"
         while [ "$check_dir" != "$skill_dir" ] && [ "$check_dir" != "/" ]; do
@@ -164,9 +164,9 @@ check_skill() {
 
   # Check 5: Agent references valid
   local agent_names=()
-  if [ -d "$REPO_ROOT/skills/story-setup/references/templates/agents" ]; then
-    for f in "$REPO_ROOT/skills/story-setup/references/templates/agents/"*.md; do
-      [ -f "$f" ] && agent_names+=("$(basename "$f" .md)")
+  if [ -d "$REPO_ROOT/skills/story-setup/references/codex/agents" ]; then
+    for f in "$REPO_ROOT/skills/story-setup/references/codex/agents/"*.toml; do
+      [ -f "$f" ] && agent_names+=("$(basename "$f" .toml)")
     done
   fi
 

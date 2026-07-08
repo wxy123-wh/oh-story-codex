@@ -41,13 +41,13 @@ fi
 echo "OK: 未发现裸调 python3"
 echo
 
-# 第二道守卫：部署型 hook 内嵌 python 不准用文本模式 stdout 输出（print(/sys.stdout.write）。
+# 第二道守卫：部署型 Codex hook Python 不准用文本模式 stdout 输出（print(/sys.stdout.write）。
 # Windows 中文系统 python stdout 默认 cp936，文本模式会把中文路径编成 GBK，与脚本里的 UTF-8
 # 字面量字节不一致，让守卫静默失效（issue #164）。要把值交给 shell 必须直写 UTF-8 字节：
 #   sys.stdout.buffer.write(value.encode("utf-8"))
 # `print(` 不会误命中 `printf `（无括号）；`sys.stdout.write(` 不会命中允许的
 # `sys.stdout.buffer.write(`（中间多了 .buffer）。
-HOOKS_DIR="$REPO_ROOT/skills/story-setup/references/templates/hooks"
+HOOKS_DIR="$REPO_ROOT/skills/story-setup/references/codex/hooks"
 TEXT_STDOUT='print\(|sys\.stdout\.write\('
 
 echo "Hook stdout-encoding Guard"
@@ -59,7 +59,7 @@ else
 fi
 
 if [ -n "$enc_hits" ]; then
-  echo "FAIL: hook 内嵌 python 用了文本模式 stdout 输出（Windows 中文系统会编成 GBK，守卫静默失效）："
+  echo "FAIL: Codex hook Python 用了文本模式 stdout 输出（Windows 中文系统会编成 GBK，守卫静默失效）："
   echo "$enc_hits"
   echo
   echo "把要交给 shell 的值直写 UTF-8 字节："
@@ -67,4 +67,4 @@ if [ -n "$enc_hits" ]; then
   exit 1
 fi
 
-echo "OK: hook 内嵌 python 未发现文本模式 stdout 输出"
+echo "OK: Codex hook Python 未发现文本模式 stdout 输出"

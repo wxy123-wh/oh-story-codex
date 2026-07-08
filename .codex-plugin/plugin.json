@@ -1,0 +1,39 @@
+{
+  "name": "oh-story-claudecode",
+  "version": "0.6.21",
+  "description": "Codex 专属网络小说创作插件，覆盖扫榜、拆文、写作、去 AI 味、审查、导入与封面工作流。",
+  "author": {
+    "name": "worldwonderer",
+    "url": "https://github.com/worldwonderer"
+  },
+  "homepage": "https://github.com/worldwonderer/oh-story-claudecode",
+  "repository": "https://github.com/worldwonderer/oh-story-claudecode",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "novel-writing",
+    "web-novel",
+    "chinese",
+    "story",
+    "writing"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Oh Story",
+    "shortDescription": "Codex 专属网文创作工具箱",
+    "longDescription": "为 Codex 定制的网络小说创作插件，提供长篇与短篇扫榜、拆文、写作、去 AI 味、审查、导入和封面生成工作流，并通过 Codex 项目 agents 与 hooks 支持长篇项目协作。",
+    "developerName": "worldwonderer",
+    "category": "Productivity",
+    "capabilities": [
+      "Write",
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/worldwonderer/oh-story-claudecode",
+    "defaultPrompt": [
+      "用 story-setup 初始化一个 Codex 写作项目",
+      "帮我写一个长篇网文大纲",
+      "审查这章正文并去 AI 味"
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

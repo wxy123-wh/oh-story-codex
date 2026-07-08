@@ -21,7 +21,7 @@ HOOK_CWD: Path | None = None
 
 def read_hook_input() -> dict[str, Any]:
     global HOOK_CWD
-    # Read raw UTF-8 bytes, not the locale-decoded text stream: Codex/Claude tool
+    # Read raw UTF-8 bytes, not the locale-decoded text stream: Codex tool
     # payloads carry Chinese 正文/细纲 paths, and Windows Python defaults stdin to the
     # ANSI code page (cp1252/cp936), which mojibakes them so the prose guard never
     # matches and silently allows (issue #164 class — same fix as the bash hooks).
@@ -68,7 +68,7 @@ def _deployed_root_from_file() -> Path | None:
 
 
 def project_root() -> Path:
-    for env_name in ("CODEX_PROJECT_DIR", "CLAUDE_PROJECT_DIR"):
+    for env_name in ("CODEX_PROJECT_DIR",):
         value = os.environ.get(env_name)
         if not value:
             continue
@@ -243,7 +243,7 @@ def find_changed_prose_files(root: Path) -> list[Path]:
 
 def _wordcount_finding(abs_path: Path, text: str) -> str | None:
     """字数欠账（仅长篇分章正文）：从 大纲/细纲_第N章*.md 读「字数目标」，实际 < 90% 提示。
-    与 check-prose-after-write.sh 内嵌 python / opencode wordcountFinding 同实现。"""
+    与 Codex Stop prose net 同实现。"""
     base = abs_path.name
     if abs_path.parent.name != "正文":
         return None
@@ -361,7 +361,7 @@ def extract_prose_targets_from_command(command: str) -> list[str]:
     for m in re.finditer(r">>?\s*" + token, command):  # > dest, >> dest, cat >dest
         targets.append(m.group(1))
     # Use an explicit start/separator class, not \b: \b is Unicode-aware in Python re but ASCII-only
-    # in JS, so an ASCII boundary keeps this identical to opencode plugin.ts (parity).
+    # in JS, so an ASCII boundary keeps this consistent across Codex hook paths.
     for m in re.finditer(r"(?:^|[\s;&|(){}<>])(?:tee(?:\s+-a)?|touch)\s+" + token, command):
         targets.append(m.group(1))
     # cp/mv: the write destination is the last positional arg of the segment. Parse it (regex can't

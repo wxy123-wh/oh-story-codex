@@ -25,8 +25,7 @@ fi
 #   header (consumed as a reference standard for source-story evaluation, not a writer
 #   playbook). Writer skills don't get the header. Wholesale-ignored here because their
 #   non-analyst copies have not all been confirmed byte-identical.
-# - AGENTS.md.tmpl: CLI-specific project instruction templates differ deliberately
-#   across OpenCode/Codex/OpenClaw and are validated by each CLI adapter check.
+# - AGENTS.md.tmpl: Codex project instruction templates are validated by the Codex adapter check.
 IGNORE_NAMES="output-templates.md material-decomposition.md quality-checklist.md \
 genre-catalog.md genre-core-mechanics.md genre-readers.md \
 genre-writing-formulas.md genre-writing-techniques.md \
@@ -45,7 +44,7 @@ echo "Shared File Consistency Check"
 echo "=============================="
 
 # Find all reference basenames that appear in 2+ skills
-dup_names="$(find "$SKILLS_DIR" -type f -path '*/references/*' ! -name '.gitkeep' ! -path '*/opencode/*' -exec basename {} \; 2>/dev/null | sort | uniq -d)"
+dup_names="$(find "$SKILLS_DIR" -type f -path '*/references/*' ! -name '.gitkeep' -exec basename {} \; 2>/dev/null | sort | uniq -d)"
 
 for base in $dup_names; do
   # Skip known intentional differences
