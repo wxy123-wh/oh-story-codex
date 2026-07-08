@@ -111,7 +111,6 @@ AI 味 / 禁用词 fallback 速查：
 平台 fallback 摘要：
 - 番茄：强开局、强冲突、高频爽点/情绪反馈、低理解门槛。
 - 起点：设定自洽、升级路径、长线期待、世界观承载力。
-- 知乎盐言：短篇钩子、反转密度、情绪兑现、信息差推进。
 
 ### 传给子 Agent 的规则
 
@@ -137,7 +136,6 @@ full/lean 模式下，主会话必须把“审查基准包摘要”直接写进�
    - 不要把 `.active-book` 当作平台来源；它只能辅助定位当前书名目录。
    - 番茄小说 → 优先读取 `story-review/references/rubrics/fanqie.md`；不可读时使用内置番茄 fallback 摘要。
    - 起点 → 优先读取 `story-review/references/rubrics/qidian.md`；不可读时使用内置起点 fallback 摘要。
-   - 知乎盐言 → 优先读取 `story-review/references/rubrics/zhihu.md`；不可读时使用内置知乎 fallback 摘要。
    - 未识别平台 → 优先读取 `story-review/references/quality-rubric.md`；不可读时使用内置通用网文内容 rubric，并报告 `Rubric: generic web-fiction` 与 `Rubric Source: file | embedded fallback`。
 5. **形成审查基准包摘要**：把已加载的文件内容或内置 fallback 摘要压缩为 5-12 条审查标准，后续 solo 和子 Agent 都必须使用这份摘要。
 6. **确定性预检（只报告，不修改）**：当审查范围包含本地正文文件路径时，运行本 skill 自带脚本：
@@ -151,7 +149,7 @@ full/lean 模式下，主会话必须把“审查基准包摘要”直接写进�
    - 其余 prose findings 统一按 S4：只指出读感风险，不替代人工判断；功能性写法标 `[需复核]` 并保留。完整类别和修法见 `anti-ai-writing.md`。
    - `check-degeneration.js` 报告模型退化（逐字复读/截断/占位符/工程词泄漏），每条带 `severity: blocking|advisory`：blocking（复读/截断/tier1 工程词）作为 S1/S2 `prose` findings，修复建议是「重新生成该段，不是改写」；advisory（tier2 章节/歧义词）作为 S4。
    - `story-review` 不修改文件；需要自动修复时建议转 `/story-deslop`。
-   - 默认 `--quote-mode keep`，不把知乎盐言短篇的 `「」` 当作问题；只有项目明确指定引号风格时才检查对应转换建议。
+   - 默认 `--quote-mode keep`；只有项目明确指定引号风格时才检查对应转换建议。
    - 这些脚本都是 `story-review` 的本地副本，不引用其他 skill 的文件。
 
 **Phase 1.5：可选 story-explorer 预查询**。仅当 `Effective Mode` 仍为 `full`/`lean`、当前允许 spawn 且 Agent/Task 工具可用，且 `.codex/agents/story-explorer.toml` 存在时，才可 spawn `story-explorer` 预查设定摘要；`solo` 或子代理递归保护场景下不得 spawn，只能直接 Read/Grep。Prompt 示例：
@@ -280,7 +278,7 @@ full/lean 模式下，主会话必须把“审查基准包摘要”直接写进�
   7. 是否存在删掉无损的任务卡点或流程细节？若只是水/局部节奏问题标 S3；明显拖垮主线推进标 S2。
   8. 身体部位同一词是否超 5 次？
   9. AI味分级（轻度/中度/重度）及证据。
-  10. 去 AI 补充复核：是否有作者解释总结/意义尾巴；是否连续堆精致戏剧反应短语；是否把已有手机/屏幕/公告/规则/证据载体改成叙述者解释；是否把任务卡点当成自然感或凑字数手段；是否机械删除了有功能的生活化/角色化比喻或短篇主观审判句。
+  10. 去 AI 补充复核：是否有作者解释总结/意义尾巴；是否连续堆精致戏剧反应短语；是否把已有手机/屏幕/公告/规则/证据载体改成叙述者解释；是否把任务卡点当成自然感或凑字数手段；是否机械删除了有功能的生活化/角色化比喻。
 
   输出格式：
   VERDICT: APPROVE / CONCERNS / REJECT
@@ -442,9 +440,9 @@ Rubric Source: file | embedded fallback
 
 | 时机 | 跳转到 | 命令 |
 |---|---|---|
-| 要修改查出的问题 | story-long-write / story-short-write | 返回对应写作 skill 修改 |
+| 要修改查出的问题 | story-long-write | 返回长篇写作 skill 修改 |
 | 发现 AI 味需清理 | story-deslop | `/story-deslop` |
-| 需要重新拆解对标书 | story-long-analyze / story-short-analyze | `/story-long-analyze` 或 `/story-short-analyze` |
+| 需要重新拆解对标书 | story-long-analyze | `/story-long-analyze` |
 
 ---
 

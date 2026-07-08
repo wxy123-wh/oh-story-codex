@@ -310,7 +310,6 @@ Stage 3-5 的分块策略（规模分级、智能分块、跨块合并、输出�
 |---|---|---|
 | 准备开写 | story-long-write | `/story-long-write` |
 | 需要市场数据 | story-long-scan | `/story-long-scan` |
-| 更适合短篇 | story-short-scan → story-short-analyze | `/story-short-scan` |
 
 > **选题决策回填**：若项目根有 `选题决策.md`（story-long-scan 产出），拆完汇总报告（Stage 5 跑完）后会自动回填对应选题的"能爆的原因"（见上「Stage 5 后：选题决策回填」）。
 

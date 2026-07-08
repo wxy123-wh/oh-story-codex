@@ -4,8 +4,7 @@
 version: 2.1.8
 sync-source: skills/story-setup/references/agent-references/anti-ai-writing.md
 本文件在 6 个 skill 副本间需保持一致：
-  story-deslop / story-long-write / story-short-write /
-  story-short-analyze / story-review / story-setup
+  story-deslop / story-long-write / story-review / story-setup
 修改后请同步所有副本（CI 守卫见 scripts/check-shared-files.sh）。
 -->
 
@@ -165,7 +164,7 @@ sync-source: skills/story-setup/references/agent-references/anti-ai-writing.md
 - 段落是否按戏剧单元/镜头自然断开，避免机械单句成段或为凑短碎成提纲（网文段落规则）
 
 ### 3. 格式一致性
-- 对话格式统一：按项目/平台约定保持同一引号风格；知乎盐言短篇可用「」
+- 对话格式统一：按项目/平台约定保持同一引号风格
 - 标点节奏匹配语气：避免通篇句号化；保留有功能的问号和少量感叹号；用动作/短句表达迟疑或打断，不用省略号或破折号硬造停顿
 - 场景切换有明显标记
 - 时间线清晰可追踪

@@ -200,11 +200,9 @@ def prose_net_findings(text: str) -> list[str]:
 
 def _is_prose_path(root: Path, abs_path: Path) -> bool:
     """正文文件判定（与 check-prose-after-write.sh 的 over-capture 门一致）：
-    短篇 {书}/正文.md 且同目录有 设定.md；长篇 {书}/正文/第N章*.md 且 {书} 有 大纲/追踪/设定。"""
+    长篇 {书}/正文/第N章*.md 且 {书} 有 大纲/追踪/设定。"""
     base = abs_path.name
     parent = abs_path.parent.name
-    if base == "正文.md":
-        return (abs_path.parent / "设定.md").exists()
     if parent == "正文" and re.match(r"^第.*章.*\.md$", base):
         book = abs_path.parent.parent
         return (book / "大纲").is_dir() or (book / "追踪").is_dir() or (book / "设定").is_dir() or (book / "设定.md").exists()
@@ -408,17 +406,6 @@ def target_paths_from_hook(obj: dict[str, Any]) -> list[Path]:
 def prose_block_reason(root: Path, abs_path: Path) -> str | None:
     base = abs_path.name
     parent = abs_path.parent.name
-    if base == "正文.md":
-        if abs_path.exists():
-            return None
-        book_dir = abs_path.parent
-        if (root / "拆文库" / book_dir.name).exists():
-            return None
-        if not (book_dir / "设定.md").exists():
-            return None
-        if not (book_dir / "小节大纲.md").exists():
-            return f"⛔ 写正文被拦截：{safe_rel(root, abs_path)} 缺少同目录 小节大纲.md。先按 story-short-write 完成小节大纲再写正文。"
-        return None
     if parent != "正文":
         return None
     if not re.match(r"^第.*章.*\.md$", base):

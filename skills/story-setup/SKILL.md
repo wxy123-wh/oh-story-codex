@@ -17,7 +17,7 @@ description: "Codex 专属网文写作项目部署。将 oh-story 插件的 Code
    - 如果已存在，询问用户是否重新部署；用户确认后继续。
 2. 检查是否有书名目录（包含 `追踪/`、`设定/`、`大纲/` 或 `正文/` 的目录）。
    - 有：识别为已有写作项目，保留用户文件。
-   - 无：识别为新项目或短篇项目，只部署 Codex 基础设施。
+   - 无：识别为新项目，只部署 Codex 基础设施。
 3. 检查 `.active-book` 文件是否存在。
    - 存在：显示当前活跃书目。
    - 不存在：跳过，不强制创建。
@@ -92,7 +92,7 @@ references_dir: .codex/skills/story-setup/references/agent-references
 - 本次写入/合并的文件清单。
 - 已保留用户文件与已有 hooks 的说明。
 - 提醒用户信任 `.codex/` 配置层，并新开 Codex 会话。
-- 提醒写作前先运行 `$story` 或目标 skill，例如 `$story-long-write`、`$story-short-write`、`$story-review`。
+- 提醒写作前先运行 `$story` 或目标 skill，例如 `$story-long-write`、`$story-review`。
 
 ## AGENTS.md 合并策略
 
@@ -116,7 +116,6 @@ references_dir: .codex/skills/story-setup/references/agent-references
 | 用户下一步 | 建议 skill | Codex 调用 |
 |---|---|---|
 | 开始写长篇 | story-long-write | `$story-long-write` |
-| 写短篇 | story-short-write | `$story-short-write` |
 | 导入已有小说 | story-import | `$story-import` |
 | 审查正文 | story-review | `$story-review` |
 | 去 AI 味 | story-deslop | `$story-deslop` |

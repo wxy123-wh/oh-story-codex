@@ -311,7 +311,6 @@ node scripts/jjwxc-rank-scraper.js --type 12 --list-only                 # 只�
 |---|---|---|
 | 找到方向 | story-long-analyze | `/story-long-analyze` |
 | 直接开写 | story-long-write | `/story-long-write` |
-| 更适合短篇 | story-short-scan | `/story-short-scan` |
 
 > **选题决策.md 交接**：Phase 4 产出的 `选题决策.md` 写在扫榜输出目录（扫榜常在没有小说项目时进行）。开书时把它搬到小说项目根目录，story-long-write Phase 1 会自动读取；拆文（story-long-analyze）会在汇总报告产出后回填对应选题的"能爆的原因"。
 

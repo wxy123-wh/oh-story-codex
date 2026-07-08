@@ -66,7 +66,6 @@ flowchart LR
     classDef final fill:#fce4ec,color:#333,stroke:#e57373,stroke-width:1px
 
     entry_l{{"长篇作者"}}:::entry
-    entry_s{{"短篇作者"}}:::entry
     entry_r{{"已有方向"}}:::entry
     entry_i{{"已有小说"}}:::entry
 
@@ -77,19 +76,16 @@ flowchart LR
     subgraph S1 ["扫榜选材"]
         direction TB
         scan_l["长篇扫榜"]:::phase
-        scan_s["短篇扫榜"]:::phase
     end
 
     subgraph S2 ["拆文学习"]
         direction TB
         analyze_l["长篇拆文"]:::phase
-        analyze_s["短篇拆文"]:::phase
     end
 
     subgraph S3 ["落笔创作"]
         direction TB
         write_l["长篇写作"]:::phase
-        write_s["短篇写作"]:::phase
     end
 
     subgraph S4 ["精修定稿"]
@@ -97,19 +93,13 @@ flowchart LR
     end
 
     entry_l --> setup
-    entry_s --> setup
     setup --> scan_l
-    setup --> scan_s
     scan_l --> analyze_l
-    scan_s --> analyze_s
     analyze_l --> write_l
-    analyze_s --> write_s
     entry_r -.->|跳过准备| write_l
-    entry_r -.->|跳过准备| write_s
     entry_i -.->|导入已有小说| setup
     setup -.->|逆向导入| write_l
     write_l --> deslop
-    write_s --> deslop
 ```
 
 ## Skills
@@ -121,9 +111,6 @@ flowchart LR
 | `story-long-write` | `$story-long-write` | 长篇写作：大纲搭建、人物设定、正文输出 |
 | `story-long-analyze` | `$story-long-analyze` | 长篇拆文：黄金三章、爽点设计、节奏分析 |
 | `story-long-scan` | `$story-long-scan` | 长篇扫榜：起点、番茄、晋江等市场趋势 |
-| `story-short-write` | `$story-short-write` | 短篇写作：情绪设计、反转构思、精修出稿 |
-| `story-short-analyze` | `$story-short-analyze` | 短篇拆文：故事核、结构、情感线、反转设计 |
-| `story-short-scan` | `$story-short-scan` | 短篇扫榜：知乎盐言、番茄短篇等风口数据 |
 | `story-deslop` | `$story-deslop` | 去 AI 味：检测并清除 AI 写作痕迹 |
 | `story-import` | `$story-import` | 逆向导入：将已有小说解析为标准项目结构 |
 | `story-review` | `$story-review` | 多视角审查：多 agent 审稿与平台评分标准 |
@@ -160,7 +147,7 @@ flowchart LR
 | Hook | 触发时机 | 功能 |
 |:-----|:---------|:-----|
 | SessionStart | 会话开始/恢复 | 显示项目状态、连续性提示、上下文恢复建议 |
-| PreToolUse | 写入正文前 | 缺对应细纲或小节大纲时阻止首次创建正文 |
+| PreToolUse | 写入正文前 | 缺对应细纲时阻止首次创建正文 |
 | PreCompact | 上下文压缩前 | 保存进度快照路径和行数摘要 |
 | PostCompact | 上下文压缩后 | 提示读取进度快照恢复上下文 |
 | Stop | 回合结束 | 扫描本轮改动正文，做截断、复读、工程词等兜底检查 |
@@ -177,15 +164,6 @@ flowchart LR
 ├── 对标/
 ├── 追踪/
 └── 参考资料/
-```
-
-短篇项目推荐结构：
-
-```text
-短篇/{标题}/
-├── 正文.md
-├── 小节大纲.md
-└── 拆文库/
 ```
 
 项目根目录可使用 `.active-book` 标记当前活跃书目的相对路径，hooks 和写作 skill 会据此定位当前项目。

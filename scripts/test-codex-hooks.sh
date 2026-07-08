@@ -75,13 +75,6 @@ assert_denied "$out" "apply_patch long prose without outline"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"book/正文/第009章_已存在.md","content":"改稿"}}')"
 assert_empty "$out" "existing prose rewrite"
 
-mkdir -p "$ROOT/short"
-: > "$ROOT/short/设定.md"
-out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"short/正文.md","content":"正文"}}')"
-assert_denied "$out" "short prose without outline"
-: > "$ROOT/short/小节大纲.md"
-out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"short/正文.md","content":"正文"}}')"
-assert_empty "$out" "short prose with outline"
 
 mkdir -p "$ROOT/impbook/正文" "$ROOT/拆文库/impbook"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"impbook/正文/第1章_导入.md","content":"正文"}}')"
@@ -111,14 +104,10 @@ echo "  OK prose command-scan precision"
 cat > "$ROOT/book/正文/第1章.md" <<'TXT'
 年龄：18
 TXT
-cat > "$ROOT/short/正文.md" <<'TXT'
-身高: 180
-TXT
-git -C "$ROOT" add book/正文/第1章.md short/正文.md
+git -C "$ROOT" add book/正文/第1章.md
 out="$(run_hook pre-tool-commit-advisory '{"tool_name":"Bash","tool_input":{"command":"git commit -m test"}}')"
 assert_additional_context "$out" "commit advisory"
 echo "$out" | grep -q 'Hardcoded character attributes' || fail "commit advisory did not inspect staged markdown"
-echo "$out" | grep -q 'short/正文.md' || fail "commit advisory missed short prose"
 out="$(run_hook pre-tool-commit-advisory '{"tool_name":"Bash","tool_input":{"command":"echo git commit docs"}}')"
 assert_empty "$out" "non-commit bash command"
 

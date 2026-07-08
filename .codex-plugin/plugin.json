@@ -1,7 +1,7 @@
 {
   "name": "oh-story-claudecode",
   "version": "0.6.21",
-  "description": "Codex 专属网络小说创作插件，覆盖扫榜、拆文、写作、去 AI 味、审查、导入与封面工作流。",
+  "description": "Codex 专属长篇网络小说创作插件，覆盖扫榜、拆文、写作、去 AI 味、审查、导入与封面工作流。",
   "author": {
     "name": "worldwonderer",
     "url": "https://github.com/worldwonderer"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Oh Story",
     "shortDescription": "Codex 专属网文创作工具箱",
-    "longDescription": "为 Codex 定制的网络小说创作插件，提供长篇与短篇扫榜、拆文、写作、去 AI 味、审查、导入和封面生成工作流，并通过 Codex 项目 agents 与 hooks 支持长篇项目协作。",
+    "longDescription": "为 Codex 定制的长篇网络小说创作插件，提供长篇扫榜、拆文、写作、去 AI 味、审查、导入和封面生成工作流，并通过 Codex 项目 agents 与 hooks 支持长篇项目协作。",
     "developerName": "worldwonderer",
     "category": "Productivity",
     "capabilities": [

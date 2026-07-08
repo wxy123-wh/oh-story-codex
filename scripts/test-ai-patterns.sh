@@ -13,7 +13,6 @@ DETECTOR_COPIES=(
   "$REPO_ROOT/skills/story-deslop/scripts/check-ai-patterns.js"
   "$REPO_ROOT/skills/story-long-write/scripts/check-ai-patterns.js"
   "$REPO_ROOT/skills/story-review/scripts/check-ai-patterns.js"
-  "$REPO_ROOT/skills/story-short-write/scripts/check-ai-patterns.js"
 )
 for detector_copy in "${DETECTOR_COPIES[@]}"; do
   node --check "$detector_copy" >/dev/null

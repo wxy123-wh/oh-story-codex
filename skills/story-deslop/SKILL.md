@@ -351,7 +351,7 @@ node scripts/normalize-punctuation.js <正文文件...>
 - 它只是读感提示；完整类别、例外和修法见 `references/anti-ai-writing.md`。
 - `check-degeneration.js` 报告模型退化（逐字复读/打转、末尾截断、占位符、工程词泄漏 `细纲`/`情节点` 等），每条带 `severity: blocking|advisory`。blocking 是退化信号，去AI味改不掉，应回去重新生成那一段再 deslop；advisory（tier2 章节/歧义词）只提示。
 - `normalize-punctuation.js` 机械兜底：清除残留的 `……`、漏网破折号 `——`/`—`、双连字符 `--` 和独立行 `---`；默认不改变引号风格，也不把有功能的 `？` / 少量 `！` 改成句号。
-- 知乎盐言短篇可保留 `「」`；只有用户或项目明确要求时，才给标点脚本加 `--quote-mode ascii` 或 `--quote-mode yan`。
+- 只有用户或项目明确要求时，才给标点脚本加 `--quote-mode ascii` 或 `--quote-mode yan`。
 - 对话中表示被打断或拖长的 `——` 不再作为例外保留；脚本会改成句号、逗号、动作可承接的断句或中文连接词。无功能标点堆砌由人工 Gate D/E 判断处理。
 - 这些脚本都是 `story-deslop` 的本地副本，不引用其他 skill 的文件。
 
@@ -430,8 +430,8 @@ node scripts/normalize-punctuation.js <正文文件...>
 
 | 时机 | 跳转到 | 命令 |
 |---|---|---|
-| 继续写作 | story-long-write / story-short-write | `/story-long-write` 或 `/story-short-write` |
-| 发现结构问题 | story-long-analyze / story-short-analyze | `/story-long-analyze` 或 `/story-short-analyze` |
+| 继续写作 | story-long-write | `/story-long-write` |
+| 发现结构问题 | story-long-analyze | `/story-long-analyze` |
 | 准备做封面 | story-cover | `/story-cover` |
 
 ---

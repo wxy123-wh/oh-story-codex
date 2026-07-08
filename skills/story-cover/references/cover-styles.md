@@ -20,11 +20,6 @@
 视觉：柔和色调(粉/紫/浅蓝/暖白) / 唯美画风大眼精致五官 / 花瓣光斑丝绸珠宝装饰 / 居中对称画面干净 / 书名优雅行书细圆
 关键词：`dreamy ethereal aesthetic, soft pastel tones, elegant romantic, delicate beauty, flower petals and bokeh`
 
-### 知乎盐言
-
-视觉：大量留白极简 / 冷淡色(灰/蓝/白/暗色) / 氛围感>人物细节，常用场景/物品/抽象意象 / 书名现代简约无衬线 / 独立电影海报质感
-关键词：`minimalist literary style, clean composition with negative space, subtle moody atmosphere, independent film poster aesthetic`
-
 ### 七猫
 
 视觉：极度饱和强烈冲击 / 人物华丽服饰装备丰富 / 火焰雷电灵力特效 / 书名大号发光占比大 / 海报感信息密度高
