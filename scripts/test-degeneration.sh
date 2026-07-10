@@ -82,12 +82,15 @@ fi
 META_POS="$TMP_DIR/meta-positive.md"
 META_NEG="$TMP_DIR/meta-negative.md"
 
-# 正例：纯工程词(细纲/情节点) + 章节结构词(本章/下一章，含对话里的) + 系统标签词(任务描述)。
+# 正例：纯工程词(事件库/全局状态/写作规则/细纲/情节点) + 章节结构词(本章/下一章，含对话里的) + 系统标签词(任务描述)。
 cat > "$META_POS" <<'EOF'
 ## 第5章 真相
 他握紧了拳头，慢慢站起身来。
 本章他终于发现了真相。
 “该到下一章了。”他低声说。
+按照事件库，他应该先去找她。
+全局状态里早就写明了这件事。
+写作规则要求这里给一个收获。
 按照细纲，他应该先去找她。
 这个情节点其实早就埋下了。
 任务描述：保护好那个女孩。
@@ -99,8 +102,8 @@ node - "$OUT" <<'NODE'
 const fs = require('fs');
 const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
 const meta = report.findings.filter((f) => f.type === 'meta-leak');
-if (meta.length !== 5) {
-  throw new Error(`expected 5 meta-leak findings (本章/下一章/细纲/情节点/任务描述), got ${meta.length}: ${JSON.stringify(meta.map((f) => f.excerpt))}`);
+if (meta.length !== 8) {
+  throw new Error(`expected 8 meta-leak findings (本章/下一章/事件库/全局状态/写作规则/细纲/情节点/任务描述), got ${meta.length}: ${JSON.stringify(meta.map((f) => f.excerpt))}`);
 }
 NODE
 

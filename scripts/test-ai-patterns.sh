@@ -11,7 +11,7 @@ fi
 SCRIPT="$REPO_ROOT/skills/story-deslop/scripts/check-ai-patterns.js"
 DETECTOR_COPIES=(
   "$REPO_ROOT/skills/story-deslop/scripts/check-ai-patterns.js"
-  "$REPO_ROOT/skills/story-long-write/scripts/check-ai-patterns.js"
+  "$REPO_ROOT/skills/story-long-draft/scripts/check-ai-patterns.js"
   "$REPO_ROOT/skills/story-review/scripts/check-ai-patterns.js"
 )
 for detector_copy in "${DETECTOR_COPIES[@]}"; do

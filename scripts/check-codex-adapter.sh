@@ -33,6 +33,9 @@ assert_file "$PLUGIN_JSON"
 assert_file "$CODEX_DIR/AGENTS.md.tmpl"
 assert_file "$CODEX_DIR/hooks/hooks.json"
 assert_file "$CODEX_DIR/hooks/story_codex_hook.py"
+assert_file "$CODEX_DIR/project-files/写作规则.md"
+assert_file "$CODEX_DIR/project-files/全局状态.md"
+assert_file "$CODEX_DIR/project-files/事件库.md"
 assert_path "$CODEX_DIR/agents"
 
 "$PYBIN" - <<'PY'
@@ -93,7 +96,6 @@ for path in sorted(Path('skills/story-setup/references/codex/agents').glob('*.to
     name = data['name']
     instructions = data['developer_instructions']
     assert path.name == f'{name}.toml', f'{path}: filename/name mismatch'
-    assert '.codex/skills/story-setup/references/agent-references/' in instructions
     assert 'agent_type' in instructions, f'{path}: missing Codex agent_type guidance'
     assert 'subagent_type' not in instructions, f'{path}: leaked non-Codex subagent_type wording'
     assert '.claude/' not in instructions and '.opencode/' not in instructions, f'{path}: leaked non-Codex reference path'
@@ -130,10 +132,12 @@ PY
 
 echo "  OK launcher root propagation + no-op guard + cmd.exe commandWindows"
 
-assert_grep '\$story-setup|\$story-long-write|/skills' "$CODEX_DIR/AGENTS.md.tmpl" "Codex AGENTS template must mention skill invocation"
+assert_grep '\$story-setup|\$story-event-plan|\$story-long-draft|/skills' "$CODEX_DIR/AGENTS.md.tmpl" "Codex AGENTS template must mention skill invocation"
 assert_grep '\.codex/agents/\*\.toml' "$CODEX_DIR/AGENTS.md.tmpl" "Codex AGENTS template must mention custom agent location"
 assert_grep '\.codex/hooks\.json' "$CODEX_DIR/AGENTS.md.tmpl" "Codex AGENTS template must mention hooks location"
 assert_grep 'target_cli: codex' skills/story-setup/SKILL.md "story-setup must document codex target_cli"
+assert_grep 'workflow: event-based' skills/story-setup/SKILL.md "story-setup must document event-based workflow"
+assert_grep '事件库\.md|全局状态\.md' "$CODEX_DIR/hooks/story_codex_hook.py" "Codex hook must guard event-based files"
 assert_grep '\.codex/agents|\.codex/hooks\.json' skills/story-review/SKILL.md "story-review must check Codex agents"
 assert_no_grep 'OpenCode|OpenClaw|Claude Code|opencode|openclaw|\.agents/skills|\.claude/agents|\.opencode/agents|subagent_type' README.md "README must be Codex-only"
 

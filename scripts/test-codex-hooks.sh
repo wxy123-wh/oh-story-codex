@@ -62,15 +62,24 @@ echo "Codex hook synthetic tests"
 echo "=========================="
 echo "Fixture: $ROOT"
 
-mkdir -p "$ROOT/book/正文" "$ROOT/book/大纲" "$ROOT/book/设定"
+mkdir -p "$ROOT/book/正文"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"cat > book/正文/第001章_开端.md <<EOF\n正文\nEOF"}}')"
-assert_denied "$out" "long prose without outline"
-: > "$ROOT/book/大纲/细纲_第1章.md"
+assert_denied "$out" "long prose without event plan"
+cat > "$ROOT/book/事件库.md" <<'TXT'
+# 事件库
+
+## 第1卷
+
+### 事件 E01：开端
+
+#### 第001章：开端
+章节目标：
+TXT
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"cat > book/正文/第001章_开端.md <<EOF\n正文\nEOF"}}')"
-assert_empty "$out" "long prose with outline"
+assert_empty "$out" "long prose with event plan"
 
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: book/正文/第002章_新局.md\n+正文\n*** End Patch\n"}}')"
-assert_denied "$out" "apply_patch long prose without outline"
+assert_denied "$out" "apply_patch long prose without event chapter"
 : > "$ROOT/book/正文/第009章_已存在.md"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"book/正文/第009章_已存在.md","content":"改稿"}}')"
 assert_empty "$out" "existing prose rewrite"
@@ -80,7 +89,7 @@ mkdir -p "$ROOT/impbook/正文" "$ROOT/拆文库/impbook"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Write","tool_input":{"file_path":"impbook/正文/第1章_导入.md","content":"正文"}}')"
 assert_empty "$out" "story-import long migration"
 
-echo "  OK outline-before-prose guard"
+echo "  OK event-plan-before-prose guard"
 
 # A Bash command that only MENTIONS a prose path (grep / echo arg / doc) must not be treated
 # as a write target; only real write ops (redirection / tee / touch / cp|mv dest) count.
@@ -89,11 +98,11 @@ assert_empty "$out" "command merely mentioning prose path is not denied"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"echo book/正文/第7章.md >> changelog.md"}}')"
 assert_empty "$out" "prose path as echo arg before non-prose redirect is not denied"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"echo x | tee book/正文/第7章_x.md"}}')"
-assert_denied "$out" "tee write to prose without outline is still denied"
+assert_denied "$out" "tee write to prose without event chapter is still denied"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"touch book/正文/第7章_x.md"}}')"
-assert_denied "$out" "touch write to prose without outline is denied"
+assert_denied "$out" "touch write to prose without event chapter is denied"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"cp draft.md book/正文/第7章_x.md"}}')"
-assert_denied "$out" "cp write to prose without outline is denied"
+assert_denied "$out" "cp write to prose without event chapter is denied"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"cp draft.md book/正文/第7章_x.md 2>/dev/null"}}')"
 assert_denied "$out" "cp write with trailing redirect is denied (dest still parsed)"
 out="$(run_hook pre-tool-prose-guard '{"tool_name":"Bash","tool_input":{"command":"cp book/正文/第1章.md backup.md"}}')"
@@ -113,17 +122,15 @@ assert_empty "$out" "non-commit bash command"
 
 echo "  OK commit advisory"
 
-mkdir -p "$ROOT/book/追踪"
 cat > "$ROOT/.story-deployed" <<'TXT'
 deployed_at: 2026-06-25T00:00:00Z
 agents_version: 16
-setup_skill_version: 1.2.5
+setup_skill_version: 3.0.0
 target_cli: codex
-resolver_strategy: project-local-skill-reference
-references_dir: .codex/skills/story-setup/references/agent-references
+workflow: event-based
 TXT
 printf 'book\n' > "$ROOT/.active-book"
-printf '# 上下文\n' > "$ROOT/book/追踪/上下文.md"
+printf '# 全局状态\n' > "$ROOT/book/全局状态.md"
 out="$(run_hook session-start '{"hook_event_name":"SessionStart"}')"
 assert_additional_context "$out" "session-start context"
 echo "$out" | grep -q 'Active book' || fail "session-start did not mention active book"
@@ -151,17 +158,15 @@ out="$(run_hook stop '{"hook_event_name":"Stop"}')"
 printf '%s' "$out" | "$PYBIN" -c 'import json,sys; o=json.loads(sys.stdin.buffer.read().decode("utf-8")); assert "截断" not in o.get("systemMessage","")' || fail "stop re-flagged already-committed prose: $out"
 echo "  OK stop content sweep (git-changed only)"
 
-# ── SessionStart continuity: 追踪 staleness（写了章但 上下文.md 没跟上）+ 章节标题去重 ──
-mkdir -p "$ROOT/contbook/正文" "$ROOT/contbook/追踪"
-printf '旧上下文\n' > "$ROOT/contbook/追踪/上下文.md"
-sleep 1
+# ── SessionStart continuity: 缺事件库提示 + 章节标题去重 ──
+mkdir -p "$ROOT/contbook/正文"
 printf '# 第1章 决战\n正文。\n' > "$ROOT/contbook/正文/第001章_决战.md"
 printf '# 第2章 决战\n正文。\n' > "$ROOT/contbook/正文/第002章_决战.md"
 out="$(run_hook session-start '{"hook_event_name":"SessionStart"}')"
 assert_additional_context "$out" "session-start continuity"
-echo "$out" | grep -q '续写会断线' || fail "session-start missed 追踪 staleness: $out"
+echo "$out" | grep -q '缺少 事件库.md' || fail "session-start missed missing event plan: $out"
 echo "$out" | grep -q '标题重复' || fail "session-start missed dup-title: $out"
-echo "  OK session-start continuity (追踪 staleness + dup-title)"
+echo "  OK session-start continuity (missing event plan + dup-title)"
 
 nested="$ROOT/nested/a/b"
 mkdir -p "$nested"
@@ -172,21 +177,24 @@ echo "  OK cwd-based root resolution"
 
 # __file__ self-location (the Windows-critical resolver) on ALL platforms: with a bogus
 # CODEX_PROJECT_DIR (env skipped) and an unrelated cwd, the hook must resolve root from its own
-# .codex/hooks/ location. Discriminating: 细纲 exists at the true root, so a wrong root → deny;
+# .codex/hooks/ location. Discriminating: event chapter exists at the true root, so a wrong root → deny;
 # only __file__-derived root → allow. (The valid-env tests above let env win and never hit this.)
-: > "$ROOT/book/大纲/细纲_第8章.md"
+cat >> "$ROOT/book/事件库.md" <<'TXT'
+
+#### 第008章：自定位
+章节目标：
+TXT
 out="$(cd "$TMP_DIR" && CODEX_PROJECT_DIR="$TMP_DIR/does-not-exist" "$PYBIN" "$HOOK" pre-tool-prose-guard <<'JSON'
 {"tool_name":"Write","tool_input":{"file_path":"book/正文/第8章_x.md","content":"x"}}
 JSON
 )"
 assert_empty "$out" "__file__ self-location resolves root when env is bogus and cwd unrelated"
-rm -f "$ROOT/book/大纲/细纲_第8章.md"
 
 echo "  OK __file__ self-location (all platforms)"
 
 NON_GIT="$TMP_DIR/non-git-story-project"
 NON_GIT_HOOK="$NON_GIT/.codex/hooks/story_codex_hook.py"
-mkdir -p "$NON_GIT/.codex/hooks" "$NON_GIT/book/正文" "$NON_GIT/book/大纲" "$NON_GIT/nested/a/b"
+mkdir -p "$NON_GIT/.codex/hooks" "$NON_GIT/book/正文" "$NON_GIT/nested/a/b"
 cp "$HOOK_SRC" "$NON_GIT_HOOK"
 cp "$REPO_ROOT/skills/story-setup/references/codex/hooks/hooks.json" "$NON_GIT/.codex/hooks.json"
 launcher_cmd="$(
@@ -205,15 +213,18 @@ assert_denied "$out" "non-git deployment launcher root search"
 
 echo "  OK non-git deployment launcher root search"
 
-# Root propagation: non-git project, outline PRESENT at the true root, triggered from a nested
+# Root propagation: non-git project, event chapter PRESENT at the true root, triggered from a nested
 # cwd → must ALLOW. The launcher resolves the root in shell; it must reach the Python hook
 # (via CODEX_PROJECT_DIR and/or the hook self-locating from __file__) instead of Python falling
 # back to the nested cwd and wrongly denying. This case also exercises Windows (Git Bash MSYS
 # path passed to native Python), which is exactly where naive env/cwd propagation breaks.
-: > "$NON_GIT/book/大纲/细纲_第4章.md"
+cat > "$NON_GIT/book/事件库.md" <<'TXT'
+# 事件库
+#### 第004章：非Git
+章节目标：
+TXT
 out="$(cd "$NON_GIT/nested/a/b"; unset CODEX_PROJECT_DIR CLAUDE_PROJECT_DIR; printf '{"tool_name":"Write","tool_input":{"file_path":"book/正文/第004章_非Git.md","content":"正文"}}' | eval "$launcher_cmd")"
-assert_empty "$out" "non-git nested cwd + outline present allows (root reaches Python hook)"
-rm -f "$NON_GIT/book/大纲/细纲_第4章.md"
+assert_empty "$out" "non-git nested cwd + event chapter present allows (root reaches Python hook)"
 
 echo "  OK non-git nested root propagation"
 
