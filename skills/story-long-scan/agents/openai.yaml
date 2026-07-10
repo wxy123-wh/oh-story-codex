@@ -1,0 +1,4 @@
+interface:
+  display_name: "长篇扫榜"
+  short_description: "采集并分析长篇网文榜单样本、市场趋势和可行选题方向"
+  default_prompt: "使用 $story-long-scan 分析当前网文榜单，并提出可行选题。"

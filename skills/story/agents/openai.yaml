@@ -1,0 +1,4 @@
+interface:
+  display_name: "网文工具箱"
+  short_description: "网文工具箱主入口，按用户意图路由到对应创作与项目管理工作流"
+  default_prompt: "使用 $story 为我的小说任务选择合适的创作工作流。"

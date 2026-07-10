@@ -1,0 +1,4 @@
+interface:
+  display_name: "长篇正文"
+  short_description: "根据事件库当前事件写长篇正文，事件完成后更新全局状态"
+  default_prompt: "使用 $story-long-draft 按事件库当前章节切片写下一章正文。"

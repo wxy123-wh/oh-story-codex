@@ -1,0 +1,4 @@
+interface:
+  display_name: "浏览器 CDP"
+  short_description: "通过 CDP 复用登录态，控制 Chrome 页面进行采集和调试"
+  default_prompt: "使用 $browser-cdp 打开已登录的 Chrome 页面，并通过 CDP 检查页面。"

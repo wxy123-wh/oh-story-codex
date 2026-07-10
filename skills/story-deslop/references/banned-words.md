@@ -1,10 +1,10 @@
 # AI味禁用词与句式表
 
 <!--
-version: 2.1.2
-sync-source: skills/story-setup/references/agent-references/banned-words.md
-本文件在 6 个 skill 副本间需保持一致：
-  story-deslop / story-long-write / story-review / story-setup
+version: 2.1.3
+sync-source: story-deslop/references/banned-words.md
+本文件在携带该参考的 skill 副本间需保持一致：
+  story-deslop / story-review
 修改后请同步所有副本（CI 守卫见 scripts/check-shared-files.sh）。
 -->
 

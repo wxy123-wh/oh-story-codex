@@ -1,6 +1,5 @@
 ---
 name: story-long-analyze
-version: 1.0.0
 description: "长篇网文拆文。深度拆解爆款长篇小说的黄金三章、人设架构、爽点设计、节奏控制。单一深度拆解管道：跑完黄金三章（Stage 1）后产出快速预览报告并询问是否继续全量拆解，确认后从 Stage 2 续跑逐章摘要、聚合分析、设定关系、汇总报告，全程产物落盘 拆文库/{书名}/。触发方式：/story-long-analyze、/长篇拆文、「帮我拆这本书」「拆这本书」「分析黄金三章」「深度拆解」「完整拆解」「系统拆解」或提供小说文本文件路径——全部进入同一管道。"
 ---
 # story-long-analyze：长篇网文拆文
@@ -304,11 +303,11 @@ Stage 3-5 的分块策略（规模分级、智能分块、跨块合并、输出�
 ## 流程衔接
 
 **流水线：** 长篇
-**位置：** 拆文（长篇流水线第 2 步，在 story-long-scan 之后、story-long-write 之前）
+**位置：** 拆文（长篇流水线第 2 步，在 story-long-scan 之后、story-event-plan 之前）
 
 | 时机 | 跳转到 | 命令 |
 |---|---|---|
-| 准备开写 | story-long-write | `/story-long-write` |
+| 准备开写 | story-event-plan | `$story-event-plan` |
 | 需要市场数据 | story-long-scan | `/story-long-scan` |
 
 > **选题决策回填**：若项目根有 `选题决策.md`（story-long-scan 产出），拆完汇总报告（Stage 5 跑完）后会自动回填对应选题的"能爆的原因"（见上「Stage 5 后：选题决策回填」）。

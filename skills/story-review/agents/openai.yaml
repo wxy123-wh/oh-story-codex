@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说审查"
+  short_description: "审查正文是否兑现事件库、承接全局状态，并指出结构、角色、逻辑和文字问题"
+  default_prompt: "使用 $story-review 审查当前章节是否兑现事件库并承接全局状态。"

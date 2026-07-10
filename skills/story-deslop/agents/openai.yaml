@@ -1,0 +1,4 @@
+interface:
+  display_name: "网文去 AI 味"
+  short_description: "检测并清除网文文本中的 AI 写作痕迹、模板腔和空泛表达"
+  default_prompt: "使用 $story-deslop 清理这一章里的 AI 写作痕迹。"

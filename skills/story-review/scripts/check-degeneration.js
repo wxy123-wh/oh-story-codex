@@ -10,7 +10,7 @@ Detect model-degeneration fingerprints that a degrading model cannot self-report
   - verbatim repetition (复读/打转): a long sentence repeated, or back-to-back identical lines
   - mid-sentence truncation (截断): file ends without terminal/closing punctuation
   - placeholder / refusal / meta leakage (元信息泄漏): 作为AI / 我无法继续 / 此处省略 / 乱码
-  - engineering-word leakage (工程词泄漏): 细纲 / 情节点 / 本章 / 下一章 / 任务描述 漏进正文
+  - engineering-word leakage (工程词泄漏): 事件库 / 全局状态 / 写作规则 / 细纲 / 情节点 / 本章 / 下一章 / 任务描述 漏进正文
 
 Each finding carries severity: blocking (复读/截断/占位拒绝语/tier1 纯工程词，正文里永不合法，
 命中即重写) 或 advisory (tier2 章节/歧义词、对话行里的工程词，只提示、交人/LLM 判)。
@@ -44,7 +44,7 @@ const PLACEHOLDER_PATTERNS = [
 // （DeepSeek-v4 这类会在对话里冒「该到下一章了」）。漏词的模型自己发现不了，靠脚本兜。
 // tier1 = 纯写作流水线术语，正文里几乎永不合法；tier2 = 章节结构/歧义词，角色在故事内
 // 真实阅读/讨论「第X章」或故事内系统/界面用语时属例外（report-only，交人/LLM 判）。
-const META_TIER1_RE = /细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子/;
+const META_TIER1_RE = /事件库|全局状态|写作规则|细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子/;
 const META_TIER2_RE = /第[一二三四五六七八九十百千万两0-9]+章|本章|这一章|上一章|下一章|上章|下章|前一章|后一章|前文|后文|伏笔|读者|任务描述/;
 
 const options = { json: false, files: [], failOn: 'all' };

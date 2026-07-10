@@ -414,7 +414,7 @@ Stage 3 除剧情文件外，必须写一个轻量索引 `剧情/README.md`，�
 
 ## Stage 4 设定+关系
 
-> **Stage 4 直接按主题拆分输出多个文件**（与 `story-import` 3.5 拆分规则、`story-long-write` 项目结构对齐）。下游无需再 re-split。
+> **Stage 4 直接按主题拆分输出多个文件**（与 `story-import` 3.5 拆分规则、拆分后的长篇写作项目结构对齐）。下游无需再 re-split。
 > **事实保真**：等级/数值/距离/属性/势力数等硬事实回原文核对，原文未给的写「原文未明确」、禁编造填空（见 material-decomposition.md「合成阶段事实保真」）。
 
 `设定/世界观/力量体系.md`：
@@ -473,7 +473,7 @@ Stage 3 除剧情文件外，必须写一个轻量索引 `剧情/README.md`，�
 
 ## Stage 6 文风
 
-输出 `拆文库/{书名}/文风.md`。整书级写作技法视图，供 story-long-write 日更循环喂给 narrative-writer。
+输出 `拆文库/{书名}/文风.md`。整书级写作技法视图，供 story-long-draft 正文写作流程喂给 narrative-writer。
 
 **字段速查**：
 

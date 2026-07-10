@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说导入"
+  short_description: "把已有长篇小说反向解析为可续写的标准写作工程目录结构"
+  default_prompt: "使用 $story-import 把我的已有小说转换成可续写的写作工程。"

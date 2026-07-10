@@ -22,7 +22,7 @@ HOOK_CWD: Path | None = None
 def read_hook_input() -> dict[str, Any]:
     global HOOK_CWD
     # Read raw UTF-8 bytes, not the locale-decoded text stream: Codex tool
-    # payloads carry Chinese 正文/细纲 paths, and Windows Python defaults stdin to the
+    # payloads carry Chinese 正文/事件库 paths, and Windows Python defaults stdin to the
     # ANSI code page (cp1252/cp936), which mojibakes them so the prose guard never
     # matches and silently allows (issue #164 class — same fix as the bash hooks).
     raw = sys.stdin.buffer.read().decode("utf-8", "replace")
@@ -115,6 +115,16 @@ def read_active_book(root: Path) -> Path | None:
                 candidate = None  # type: ignore[assignment]
             if candidate and candidate.exists():
                 return candidate
+    if (root / "事件库.md").exists() or (root / "全局状态.md").exists():
+        return root
+    for events in root.glob("**/事件库.md"):
+        if any(part.startswith(".") for part in events.relative_to(root).parts):
+            continue
+        return events.parent
+    for state in root.glob("**/全局状态.md"):
+        if any(part.startswith(".") for part in state.relative_to(root).parts):
+            continue
+        return state.parent
     for track in root.glob("**/追踪"):
         if any(part.startswith(".") for part in track.relative_to(root).parts):
             continue
@@ -147,7 +157,7 @@ _NET_SOFT_PATTERNS = [
 _NET_HARD_PATTERNS = [
     (re.compile(r"[（(](此处|以下|这里|下文|后续)?[^）)]{0,10}(省略|略去|略过)[^）)]{0,10}[）)]"), "占位符（括号省略）"),
     (re.compile(r"(TODO|占位符|placeholder|待补充|此处待填|此处待补)"), "占位符"),
-    (re.compile(r"(细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子|任务描述)"), "工程词泄漏"),
+    (re.compile(r"(事件库|全局状态|写作规则|细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子|任务描述)"), "工程词泄漏"),
     (re.compile("�"), "乱码（替换字符）"),
 ]
 
@@ -200,12 +210,20 @@ def prose_net_findings(text: str) -> list[str]:
 
 def _is_prose_path(root: Path, abs_path: Path) -> bool:
     """正文文件判定（与 check-prose-after-write.sh 的 over-capture 门一致）：
-    长篇 {书}/正文/第N章*.md 且 {书} 有 大纲/追踪/设定。"""
+    长篇 {书}/正文/第N章*.md 且 {书} 是事件制项目；兼容旧项目结构。"""
     base = abs_path.name
     parent = abs_path.parent.name
     if parent == "正文" and re.match(r"^第.*章.*\.md$", base):
         book = abs_path.parent.parent
-        return (book / "大纲").is_dir() or (book / "追踪").is_dir() or (book / "设定").is_dir() or (book / "设定.md").exists()
+        return (
+            (book / "事件库.md").exists()
+            or (book / "全局状态.md").exists()
+            or (book / "写作规则.md").exists()
+            or (book / "大纲").is_dir()
+            or (book / "追踪").is_dir()
+            or (book / "设定").is_dir()
+            or (book / "设定.md").exists()
+        )
     return False
 
 
@@ -239,46 +257,24 @@ def find_changed_prose_files(root: Path) -> list[Path]:
     return out
 
 
-def _wordcount_finding(abs_path: Path, text: str) -> str | None:
-    """字数欠账（仅长篇分章正文）：从 大纲/细纲_第N章*.md 读「字数目标」，实际 < 90% 提示。
-    与 Codex Stop prose net 同实现。"""
-    base = abs_path.name
+def _event_chapter_target(abs_path: Path) -> tuple[str, int | None] | None:
     if abs_path.parent.name != "正文":
         return None
-    m = re.match(r"^第0*(\d+)章", base)
+    m = re.match(r"^第0*(\d+)章", abs_path.name)
     if not m:
         return None
-    num = m.group(1)
-    target = None
-    for f in (abs_path.parent.parent / "大纲").glob("细纲_第*章*.md"):
-        fm = re.search(r"细纲_第0*(\d+)章", f.name)
-        if not fm or fm.group(1) != num:
-            continue
-        try:
-            txt = f.read_text(encoding="utf-8")
-        except Exception:
-            continue
-        tm = re.search(r"字数目标[^0-9]{0,6}(\d{3,6})", txt)
-        if tm:
-            target = int(tm.group(1))
-        break
-    if not target:
-        return None
-    actual = len(text)
-    if actual < target * 0.9:
-        return (f"字数：第{num}章 实际 {actual} 字 < 目标 {target} 的 90%（{int(target*0.9)}）。"
-                f"对照细纲字数预算定位欠账的密点、一次性重写到配额，别挤牙膏回炉。")
-    return None
+    num = int(m.group(1))
+    return f"第{num:03d}章", num
 
 
 def _discover_all_books(root: Path) -> list[Path]:
     books: list[Path] = []
     seen: set[str] = set()
-    for pattern in ("**/追踪", "**/正文", "**/正文.md"):
+    for pattern in ("**/事件库.md", "**/全局状态.md", "**/正文", "**/正文.md", "**/追踪"):
         for hit in root.glob(pattern):
             if any(part.startswith(".") for part in hit.relative_to(root).parts):
                 continue
-            book = hit.parent
+            book = hit.parent if hit.is_file() else hit.parent
             key = str(book.resolve())
             if key not in seen:
                 seen.add(key)
@@ -287,26 +283,16 @@ def _discover_all_books(root: Path) -> list[Path]:
 
 
 def continuity_findings(root: Path) -> list[str]:
-    """跨批连续性兜底：① 追踪 staleness（写了章但 上下文.md 没跟上 → 续写会断线）；
-    ② 章节标题去重（两章同名多半是误复制）。模型无关，回合/会话边界提醒，无问题则静默。
-    扫描范围 repo-wide（与缺口检测一致），非活跃书也提醒——有意为之，不按 .active-book 收窄；
-    staleness 用 mtime +1 秒容差，是启发式 advisory（checkout / 带 -p 拷贝可能偏差）。"""
+    """连续性兜底：事件制项目提醒核心文件缺失；章节标题去重。模型无关，无问题静默。"""
     msgs: list[str] = []
     for book in _discover_all_books(root):
         body_dir = book / "正文"
         chapters = sorted(body_dir.glob("第*章*.md")) if body_dir.is_dir() else []
-        # ① 追踪 staleness（仅长篇：有 追踪/上下文.md）
-        ctx = book / "追踪" / "上下文.md"
-        if chapters and ctx.exists():
-            newest = max((c.stat().st_mtime for c in chapters), default=0)
-            try:
-                ctx_m = ctx.stat().st_mtime
-            except Exception:
-                ctx_m = 0
-            if newest > ctx_m + 1:
-                latest = max(chapters, key=lambda c: c.stat().st_mtime).name
-                msgs.append(f"[continuity] {safe_rel(root, book)}：正文已更新到「{latest}」但 追踪/上下文.md 更早，续写会断线——补更 上下文.md/伏笔.md 再继续。")
-        # ② 标题去重（按文件名 第N章_标题 的标题部分）
+        if chapters and not (book / "事件库.md").exists() and not (book / "追踪").exists():
+            msgs.append(f"[continuity] {safe_rel(root, book)}：检测到正文但缺少 事件库.md；继续写前先运行 $story-event-plan 补事件。")
+        if (book / "事件库.md").exists() and not (book / "全局状态.md").exists():
+            msgs.append(f"[continuity] {safe_rel(root, book)}：缺少 全局状态.md；事件完成后无法承接下一事件，建议运行 $story-setup 补齐。")
+        # 标题去重（按文件名 第N章_标题 的标题部分）
         titles: dict[str, list[str]] = {}
         for c in chapters:
             mt = re.match(r"^第0*\d+章[_\- 　]+(.+)$", c.stem)
@@ -333,9 +319,13 @@ def session_start() -> None:
             messages.append("[story-setup] 当前部署标记未包含 codex；如需 Codex hooks/agents，请重新运行 $story-setup 并选择 Codex。")
     book = read_active_book(root)
     if book:
-        ctx = book / "追踪" / "上下文.md"
-        if ctx.exists():
-            messages.append(f"[story context] Active book: {safe_rel(root, book)}. Read {safe_rel(root, ctx)} before continuing long-form writing.")
+        state = book / "全局状态.md"
+        events = book / "事件库.md"
+        if state.exists():
+            messages.append(f"[story context] Active book: {safe_rel(root, book)}. Read {safe_rel(root, state)} and {safe_rel(root, events)} before continuing event-based writing.")
+        elif (book / "追踪" / "上下文.md").exists():
+            ctx = book / "追踪" / "上下文.md"
+            messages.append(f"[story context] Legacy story project detected: {safe_rel(root, book)}. Prefer migrating to 事件库.md + 全局状态.md; read {safe_rel(root, ctx)} before continuing.")
         else:
             messages.append(f"[story context] Active story project detected: {safe_rel(root, book)}.")
     messages.extend(continuity_findings(root))
@@ -419,16 +409,21 @@ def prose_block_reason(root: Path, abs_path: Path) -> str | None:
     book_dir = abs_path.parent.parent
     if (root / "拆文库" / book_dir.name).exists():
         return None
-    outline_dir = book_dir / "大纲"
-    found = False
-    if outline_dir.is_dir():
-        for candidate in outline_dir.iterdir():
-            fm = re.match(r"^细纲_第0*(\d+)章.*\.md$", candidate.name)
-            if fm and fm.group(1) == num:
-                found = True
-                break
-    if not found:
-        return f"⛔ 写正文被拦截：第 {num} 章缺少细纲（{safe_rel(root, outline_dir)}/细纲_第{num}章.md）。先按 story-long-write 单章流程补建细纲再写正文。"
+    event_file = book_dir / "事件库.md"
+    if not event_file.exists():
+        return f"⛔ 写正文被拦截：第 {num} 章缺少事件库（{safe_rel(root, event_file)}）。先用 story-event-plan 生成事件并在事件内分章，再用 story-long-draft 写正文。"
+    try:
+        event_text = event_file.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        event_text = ""
+    chapter_num = int(num)
+    patterns = [
+        rf"第0*{chapter_num}章",
+        rf"第{chapter_num:03d}章",
+        rf"第{chapter_num}章",
+    ]
+    if not any(re.search(p, event_text) for p in patterns):
+        return f"⛔ 写正文被拦截：第 {num} 章未在 {safe_rel(root, event_file)} 中分章。先用 story-event-plan / story-long-chapter-outline 在当前事件内补齐章节目标、正文级素材、关键对白和章尾钩子。"
     return None
 
 
@@ -571,7 +566,7 @@ def staged_markdown_warnings(root: Path) -> str:
                 if re.search(r"(身高|体重|年龄)(\s|　)*(：|:)(\s|　)*[0-9]+", line):
                     hits.append(f"{idx}:{line}")
             if hits:
-                warnings.append(f"⚠ {file}: Hardcoded character attributes found (should reference 设定/ files):\n" + "\n".join(hits))
+                warnings.append(f"⚠ {file}: Hardcoded character attributes found (recurring attributes should be reflected in 全局状态.md or 事件库.md):\n" + "\n".join(hits))
         if file.startswith("设定/") or "/设定/" in file:
             if not re.search(r"^(\s|　)*(名字|姓名|名称|name|Name)(\s|　)*(：|:)", text, re.M):
                 warnings.append(f"⚠ {file}: Setting file missing required fields (name/名字: ...)")
@@ -594,10 +589,17 @@ def compact_summary(event: str) -> None:
     lines = ["=== Story Compact Summary ==="]
     book = read_active_book(root)
     if book:
-        ctx = book / "追踪" / "上下文.md"
-        if ctx.exists():
+        state = book / "全局状态.md"
+        events = book / "事件库.md"
+        if state.exists():
+            line_count = len(state.read_text(encoding="utf-8", errors="ignore").splitlines())
+            lines.append(f"Writing state: {safe_rel(root, state)} ({line_count} lines)")
+            if events.exists():
+                lines.append(f"Event plan: {safe_rel(root, events)}")
+        elif (book / "追踪" / "上下文.md").exists():
+            ctx = book / "追踪" / "上下文.md"
             line_count = len(ctx.read_text(encoding="utf-8", errors="ignore").splitlines())
-            lines.append(f"Writing context: {safe_rel(root, ctx)} ({line_count} lines)")
+            lines.append(f"Legacy writing context: {safe_rel(root, ctx)} ({line_count} lines)")
         else:
             lines.append(f"Active story project: {safe_rel(root, book)}")
     else:
@@ -628,9 +630,6 @@ def stop_event() -> None:
             except Exception:
                 continue
             findings = prose_net_findings(text)
-            wc = _wordcount_finding(abs_path, text)
-            if wc:
-                findings.append(wc)
             if findings:
                 blocks.append(f"=== {safe_rel(root, abs_path)} ===\n" + "\n".join(findings))
         if blocks:

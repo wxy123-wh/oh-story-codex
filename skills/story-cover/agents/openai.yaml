@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说封面"
+  short_description: "根据书名题材作者信息，生成适合平台的专业网文封面方案"
+  default_prompt: "使用 $story-cover 根据书名、作者和题材生成网文封面。"

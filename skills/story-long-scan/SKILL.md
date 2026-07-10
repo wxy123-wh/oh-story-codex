@@ -1,6 +1,5 @@
 ---
 name: story-long-scan
-version: 1.0.0
 description: "长篇网文扫榜。分析起点、番茄、晋江等平台排行榜数据，提炼市场趋势与热门题材。触发方式：/story-long-scan、/长篇扫榜、「长篇什么火」「起点排行」。"
 ---
 # story-long-scan：长篇网文扫榜
@@ -310,9 +309,9 @@ node scripts/jjwxc-rank-scraper.js --type 12 --list-only                 # 只�
 | 时机 | 跳转到 | 命令 |
 |---|---|---|
 | 找到方向 | story-long-analyze | `/story-long-analyze` |
-| 直接开写 | story-long-write | `/story-long-write` |
+| 直接开写 | story-event-plan | `$story-event-plan` |
 
-> **选题决策.md 交接**：Phase 4 产出的 `选题决策.md` 写在扫榜输出目录（扫榜常在没有小说项目时进行）。开书时把它搬到小说项目根目录，story-long-write Phase 1 会自动读取；拆文（story-long-analyze）会在汇总报告产出后回填对应选题的"能爆的原因"。
+> **选题决策.md 交接**：Phase 4 产出的 `选题决策.md` 写在扫榜输出目录（扫榜常在没有小说项目时进行）。开书时把它放到小说项目根目录，`$story-event-plan` 可读取其中的市场假设并转成事件库；拆文（story-long-analyze）会在汇总报告产出后回填对应选题的"能爆的原因"。
 
 ## 参考资料
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "写作项目部署"
+  short_description: "为当前目录部署 Codex 专属网文写作项目结构、配置和协作文件"
+  default_prompt: "使用 $story-setup 将当前文件夹初始化为网文写作项目。"
